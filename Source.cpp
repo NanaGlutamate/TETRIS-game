@@ -78,7 +78,7 @@ int clean(){
             screen[last][j]=screen[last-dis][j];
             request[last]=request[last-dis]=1;
         }
-    }score=dis;rnd=last;
+    }
     for(int i=0;i<=last;i++){
         for(int j=0;j<WIDE;j++)if(screen[i][j]){
             screen[i][j]=0;request[i]=1;
