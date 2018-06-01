@@ -7,8 +7,7 @@
 #include<conio.h>
 #define up(i,a,b) for(int i=a;i<=b;i++)
 #define down(i,a,b) for(int i=a;i>=b;i--)
-
-static const int WIDE=15,HIGHT=24,TIME=40,DROP_T=600,TX=2,TY=2,SCORE=7,ROUND=10,RATE=4;
+static const int WIDE=15,HIGHT=24,TIME=20,DROP_T=800,TX=2,TY=2,SCORE=7,ROUND=10,RATE=4,CPMS=CLOCKS_PER_SEC/1000;
 int score=0,rnd=1,randomN=1,lose=0;
 int blockNow=0,blockNext=0,shape=0;
 int px=WIDE/2-2,py=0;
@@ -25,6 +24,12 @@ char request[HIGHT+3];
 int flush();
 int init();
 
+int sleep(int t){
+    static int clk=clock();int tempClk=0;
+    while((tempClk=clock())<clk+t*CPMS)Sleep(1);
+    clk=tempClk;
+    return 0;
+}
 // Game logic
 char input=0;
 static unsigned short blocks[7][4]={{0b0100010001100000,0b0010111000000000,0b1100010001000000,0b0000111010000000},{0b0100010011000000,0b0000111000100000,0b0110010001000000,0b1000111000000000},{0b1100110000000000},{0b0100111000000000,0b0100110001000000,0b0000111001000000,0b0100011001000000},{0b0100010001000100,0b0000111100000000},{0b0100110010000000,0b1100011000000000},{0b1000110001000000,0b0110110000000000}};
@@ -66,7 +71,7 @@ int clean(){
     }
     score+=tscore*(tscore+1)/2;
     flush();
-    Sleep(DROP_T/3);
+    sleep(DROP_T/3);
     for(;last-dis>=0&&flag;--last){
         flag=0;
         while(last-dis>=0&&screen[last-dis][0]==8)dis++;
@@ -86,7 +91,7 @@ int clean(){
     memset(request+last-dis+2,1,dis-1);
     request[HIGHT+1]=1;
     flush();
-    Sleep(DROP_T/3);
+    sleep(DROP_T/3);
     return 0;
 }
 int next(){
@@ -155,12 +160,11 @@ int next(){
     return 0;
 }//若不可能重合，标记input为0。（初检）若input不为0，消除原来块，产生新块。若有重合，若改变为向下移动，固定并打印该块，判断是否满行，判断是否满列，产生新块;若为其它改变，回滚改变;若既下降又有其他改变，回滚其它改变后再次判断。打印新块。
 
-
 int main(){
     system("cls");
     printf("\n\n\n      Press space to start");
     while(getch()!=' ');
-    Sleep(TIME);
+    sleep(TIME);
     system("cls");
     init();
     while(!kbhit()||((input=getch())!='=')){
@@ -169,7 +173,7 @@ int main(){
         if(lose)break;
         input=0;
         if((++tick)>=(DROP_T/TIME))tick=0;
-        Sleep(TIME);
+        sleep(TIME);
     }
     point.X=0;point.Y=TY+HIGHT+2;
     SetConsoleCursorPosition(out,point);
@@ -281,6 +285,4 @@ int init(){
 *1.PAUSE
 *
 *2.旋转时碰到边框自动平移
-*
-*3.精确Sleep
 */
