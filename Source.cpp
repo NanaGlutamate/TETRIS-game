@@ -87,8 +87,10 @@ int clean(){
             }
         }
     }
-    memset(screen[last-dis+2],0,(dis-1)*sizeof(screen[0]));
-    memset(request+last-dis+2,1,dis-1);
+    up(i,last-dis+2,last)up(j,0,WIDE-1)if(screen[i][j]){
+        request[i]=1;
+        screen[i][j]=0;
+    }
     request[HIGHT+1]=1;
     flush();
     sleep(DROP_T/3);
@@ -99,7 +101,7 @@ int next(){
     if(input){
         switch(input){
             case 's':
-                if(tick%((DROP_T/TIME-1)/RATE)==0&&tick!=(DROP_T/TIME-1)){down=1;clear();++py;}else input=0;
+                if(tick%((DROP_T/TIME)/RATE)==0&&tick!=0&&tick!=(DROP_T/TIME-1)){down=1;clear();++py;}else input=0;
                 break;
             case 'w':
                 clear();
