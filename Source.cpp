@@ -7,7 +7,7 @@
 #include<conio.h>
 #define up(i,a,b) for(int i=a;i<=b;i++)
 #define down(i,a,b) for(int i=a;i>=b;i--)
-static const int WIDE=15,HIGHT=24,TIME=20,DROP_T=800,TX=2,TY=2,SCORE=7,ROUND=10,RATE=4,CPMS=CLOCKS_PER_SEC/1000;
+static const int WIDE=15,HIGHT=24,TIME=20,DROP_T=800,TX=2,TY=2,SCORE=7,ROUND=10,RATE=5,CPMS=CLOCKS_PER_SEC/1000;
 int score=0,rnd=1,randomN=1,lose=0;
 int blockNow=0,blockNext=0,shape=0;
 int px=WIDE/2-2,py=0;
@@ -179,7 +179,7 @@ int main(){
     }
     point.X=0;point.Y=TY+HIGHT+2;
     SetConsoleCursorPosition(out,point);
-    printf("      Your final score is:\n      %6d              \n                          \n      in                      \n      %6d                  \n                            \n      rounds.                       \n",score,rnd);
+    printf("      Your final score is:    \n      %6d                  \n                              \n      in                          \n      %6d                      \n                                \n      rounds.                           \n",score,rnd);
     /*init();
     while(1){
         memset(request,1,sizeof(request));
