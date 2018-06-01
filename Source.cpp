@@ -173,7 +173,7 @@ int main(){
     }
     point.X=0;point.Y=TY+HIGHT+2;
     SetConsoleCursorPosition(out,point);
-    printf("      Your final score is:\n      %6d\n\n      in\n      %6d\n\n      rounds.\n",score,rnd);
+    printf("      Your final score is:\n      %6d              \n                          \n      in                      \n      %6d                  \n                            \n      rounds.                       \n",score,rnd);
     /*init();
     while(1){
         memset(request,1,sizeof(request));
