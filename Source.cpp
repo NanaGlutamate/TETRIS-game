@@ -21,7 +21,6 @@ char map[4][4]={};
 COORD point={TX*2,TY};
 char screen[HIGHT][WIDE];
 char request[HIGHT+3];
-char temp[4]={};
 //static const char * const Table[]={"□","■"};
 int flush();
 int init();
@@ -50,40 +49,42 @@ inline int collision(){
     return 0;
 }
 int clean(){
-    int dis=1,last=py+3<(HIGHT-1)?py+3:(HIGHT-1);
-    memset(temp,1,sizeof(temp));
+    int dis=1,last=py+3<(HIGHT-1)?py+3:(HIGHT-1),flag=1,tscore=0;
     for(int i=py;i<HIGHT&&i<py+4;++i){
-        up(j,0,WIDE-2){
-            if(screen[i][j]==0){
-                temp[i-py]=0;goto Q;
-            }
+        up(j,0,WIDE-1){
+            if(screen[i][j]==0)
+                goto Q;
         }
-        if(screen[i][WIDE-1]){
-            request[i]=1;
-            ++score;
-            memset(screen[i],8,WIDE);
-        }else temp[i-py]=0;
+        request[i]=1;
+        ++tscore;
+        memset(screen[i],8,WIDE);
         Q:;
     }
-    while(last-py>=0&&!temp[last-py])--last;
-    if(last<py){
+    while(last>=0&&last>=py&&screen[last][0]!=8)--last;
+    if(last<py||last<0){
         return 0;
     }
-    request[HIGHT+1]=1;
+    score+=tscore*(tscore+1)/2;
     flush();
     Sleep(DROP_T/3);
-    for(;last-dis>=0;--last){
-        while(last-dis-py>=0&&temp[last-dis-py])dis++;
+    for(;last-dis>=0&&flag;--last){
+        flag=0;
+        while(last-dis>=0&&screen[last-dis][0]==8)dis++;
         if(last-dis>=0)up(j,0,WIDE-1){
-            screen[last][j]=screen[last-dis][j];
-            request[last]=request[last-dis]=1;
+            if(screen[last][j]!=screen[last-dis][j]){
+                request[last]=1;
+                screen[last][j]=screen[last-dis][j];
+            }
+            if(screen[last-dis][j]){
+                flag=1;
+                screen[last-dis][j]=0;
+                request[last-dis]=1;
+            }
         }
     }
-    for(int i=0;i<=last;i++){
-        for(int j=0;j<WIDE;j++)if(screen[i][j]){
-            screen[i][j]=0;request[i]=1;
-        }
-    }
+    memset(screen[last-dis+2],0,(dis-1)*sizeof(screen[0]));
+    memset(request+last-dis+2,1,dis-1);
+    request[HIGHT+1]=1;
     flush();
     Sleep(DROP_T/3);
     return 0;
@@ -114,7 +115,7 @@ int next(){
     }//若旋转使得该方块与已有方块重合，会覆盖。若旋转使得方块超边界，数组会越界。
     //Solved
     if(tick==DROP_T/TIME-1){
-        clear();
+        if(!input)clear();
         ++py;
         down=1;
     }
@@ -170,13 +171,16 @@ int main(){
         if((++tick)>=(DROP_T/TIME))tick=0;
         Sleep(TIME);
     }
-    point.X=0;point.Y=TY+HIGHT/2;
+    point.X=0;point.Y=TY+HIGHT+2;
     SetConsoleCursorPosition(out,point);
     printf("      Your final score is:\n      %6d\n\n      in\n      %6d\n\n      rounds.\n",score,rnd);
     /*init();
     while(1){
+        memset(request,1,sizeof(request));
         memset(screen,1,sizeof(screen));
+        flush();
         while((scanf("%d",&py))!=EOF){
+            memset(request,1,sizeof(request));
             clean();
         }
     }*/
