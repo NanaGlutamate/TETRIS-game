@@ -11,26 +11,21 @@ static const int WIDTH=15,HIGHT=24,TIME=20,DROP_T=800,TX=2,TY=2,SCORE=7,ROUND=10
 int score=0,rnd=1,randomN=1,lose=0;
 int blockNow=0,blockNext=0,shape=0;
 int px=WIDTH/2-2,py=0;
-// UI
 int tick=0;
 static const int COLOR[]={14,13,15,12,2,1,8};
-//YELLOW=14,PINK=13,WHITE=15,BLACK=0,RED=12,GREEN=2,BLUE=1,NONE=0;
 HANDLE out;
 char map[4][4]={};
 COORD point={TX*2,TY};
 char screen[HIGHT][WIDTH];
 char request[HIGHT+3];
-//static const char * const Table[]={"□","■"};
 int flush();
 int init();
-
 int sleep(int t){
     static int clk=clock();int tempClk=0;
     while((tempClk=clock())<clk+t*CPMS)Sleep(1);
     clk=tempClk;
     return 0;
 }
-// Game logic
 char input=0;
 static unsigned short blocks[7][4]={{0b0100010001100000,0b0010111000000000,0b1100010001000000,0b0000111010000000},{0b0100010011000000,0b0000111000100000,0b0110010001000000,0b1000111000000000},{0b1100110000000000},{0b0100111000000000,0b0100110001000000,0b0000111001000000,0b0100011001000000},{0b0100010001000100,0b0000111100000000},{0b0100110010000000,0b1100011000000000},{0b1000110001000000,0b0110110000000000}};
 inline int loadBlock(unsigned short a){
@@ -117,8 +112,7 @@ int next(){
                 if(px<WIDTH-1){clear();++px;}else input=0;
                 break;
         }
-    }//若旋转使得该方块与已有方块重合，会覆盖。若旋转使得方块超边界，数组会越界。
-    //Solved
+    }
     if(tick==DROP_T/TIME-1){
         if(!input)clear();
         ++py;
@@ -159,7 +153,6 @@ int next(){
     }
     return 0;
 }//若不可能重合，标记input为0。（初检）若input不为0，消除原来块，产生新块。若有重合，若改变为向下移动，固定并打印该块，判断是否满行，判断是否满列，产生新块;若为其它改变，回滚改变;若既下降又有其他改变，回滚其它改变后再次判断。打印新块。
-
 int main(){
     system("cls");
     printf("\n\n\n      Press space to start");
@@ -178,16 +171,7 @@ int main(){
     point.X=0;point.Y=TY+HIGHT+2;
     SetConsoleCursorPosition(out,point);
     printf("      Your final score is:\n      %6d              \n                          \n      in                      \n      %6d                  \n                            \n      rounds.                       \n",score,rnd);
-    /*init();
-    while(1){
-        memset(request,1,sizeof(request));
-        memset(screen,1,sizeof(screen));
-        flush();
-        while((scanf("%d",&py))!=EOF){
-            memset(request,1,sizeof(request));
-            clean();
-        }
-    }*/
+    system("pause");
     return 0;
 }
 int flush(){
