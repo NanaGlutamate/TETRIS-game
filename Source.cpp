@@ -7,10 +7,10 @@
 #include<conio.h>
 #define up(i,a,b) for(int i=a;i<=b;i++)
 #define down(i,a,b) for(int i=a;i>=b;i--)
-static const int WIDE=15,HIGHT=24,TIME=20,DROP_T=800,TX=2,TY=2,SCORE=7,ROUND=10,RATE=5,CPMS=CLOCKS_PER_SEC/1000;
+static const int WIDTH=15,HIGHT=24,TIME=20,DROP_T=800,TX=2,TY=2,SCORE=7,ROUND=10,RATE=4,CPMS=CLOCKS_PER_SEC/1000;
 int score=0,rnd=1,randomN=1,lose=0;
 int blockNow=0,blockNext=0,shape=0;
-int px=WIDE/2-2,py=0;
+int px=WIDTH/2-2,py=0;
 // UI
 int tick=0;
 static const int COLOR[]={14,13,15,12,2,1,8};
@@ -18,7 +18,7 @@ static const int COLOR[]={14,13,15,12,2,1,8};
 HANDLE out;
 char map[4][4]={};
 COORD point={TX*2,TY};
-char screen[HIGHT][WIDE];
+char screen[HIGHT][WIDTH];
 char request[HIGHT+3];
 //static const char * const Table[]={"□","■"};
 int flush();
@@ -50,19 +50,19 @@ inline int prt(int mode=1){
     return 0;
 }
 inline int collision(){
-    up(i,0,3)up(j,0,3)if(map[i][j])if((i+py>=HIGHT||j+px<0||j+px>=WIDE)||(screen[py+i][px+j]))return 1;
+    up(i,0,3)up(j,0,3)if(map[i][j])if((i+py>=HIGHT||j+px<0||j+px>=WIDTH)||(screen[py+i][px+j]))return 1;
     return 0;
 }
 int clean(){
     int dis=1,last=py+3<(HIGHT-1)?py+3:(HIGHT-1),flag=1,tscore=0;
     for(int i=py;i<HIGHT&&i<py+4;++i){
-        up(j,0,WIDE-1){
+        up(j,0,WIDTH-1){
             if(screen[i][j]==0)
                 goto Q;
         }
         request[i]=1;
         ++tscore;
-        memset(screen[i],8,WIDE);
+        memset(screen[i],8,WIDTH);
         Q:;
     }
     while(last>=0&&last>=py&&screen[last][0]!=8)--last;
@@ -75,7 +75,7 @@ int clean(){
     for(;last-dis>=0&&flag;--last){
         flag=0;
         while(last-dis>=0&&screen[last-dis][0]==8)dis++;
-        if(last-dis>=0)up(j,0,WIDE-1){
+        if(last-dis>=0)up(j,0,WIDTH-1){
             if(screen[last][j]!=screen[last-dis][j]){
                 request[last]=1;
                 screen[last][j]=screen[last-dis][j];
@@ -87,10 +87,8 @@ int clean(){
             }
         }
     }
-    up(i,last-dis+2,last)up(j,0,WIDE-1)if(screen[i][j]){
-        request[i]=1;
-        screen[i][j]=0;
-    }
+    memset(screen[last-dis+2],0,(dis-1)*sizeof(screen[0]));
+    memset(request+last-dis+2,1,dis-1);
     request[HIGHT+1]=1;
     flush();
     sleep(DROP_T/3);
@@ -101,7 +99,7 @@ int next(){
     if(input){
         switch(input){
             case 's':
-                if(tick%((DROP_T/TIME)/RATE)==0&&tick!=0&&tick!=(DROP_T/TIME-1)){down=1;clear();++py;}else input=0;
+                if(tick%((DROP_T/TIME-1)/RATE)==0&&tick!=(DROP_T/TIME-1)){down=1;clear();++py;}else input=0;
                 break;
             case 'w':
                 clear();
@@ -116,7 +114,7 @@ int next(){
                 if(px>=0){clear();--px;}else input=0;
                 break;
             case 'd':
-                if(px<WIDE-1){clear();++px;}else input=0;
+                if(px<WIDTH-1){clear();++px;}else input=0;
                 break;
         }
     }//若旋转使得该方块与已有方块重合，会覆盖。若旋转使得方块超边界，数组会越界。
@@ -143,7 +141,7 @@ int next(){
                 clean();
                 srand(randomN*time(0));
                 randomN=rand();
-                blockNow=blockNext;blockNext=randomN%7;shape=0;px=WIDE/2-2,py=0;
+                blockNow=blockNext;blockNext=randomN%7;shape=0;px=WIDTH/2-2,py=0;
                 loadBlock(blocks[blockNow][0]);
                 if(collision()){
                     lose=1;
@@ -179,7 +177,7 @@ int main(){
     }
     point.X=0;point.Y=TY+HIGHT+2;
     SetConsoleCursorPosition(out,point);
-    printf("      Your final score is:    \n      %6d                  \n                              \n      in                          \n      %6d                      \n                                \n      rounds.                           \n",score,rnd);
+    printf("      Your final score is:\n      %6d              \n                          \n      in                      \n      %6d                  \n                            \n      rounds.                       \n",score,rnd);
     /*init();
     while(1){
         memset(request,1,sizeof(request));
@@ -199,7 +197,7 @@ int flush(){
         request[k]=0;
         point.Y=k+TY;
         SetConsoleCursorPosition(out,point);
-        up(i,0,WIDE-1){
+        up(i,0,WIDTH-1){
             if(screen[k][i]==0){
                 fputs("  ",stdout);
             }else{
@@ -214,7 +212,7 @@ int flush(){
             SetConsoleTextAttribute(out,color=(blockNext+1));
         request[HIGHT]=0;
         flag=1;
-        point.X=(TX+WIDE+2)*2;
+        point.X=(TX+WIDTH+2)*2;
         up(i,0,3){
             point.Y=TY+1+i;
             SetConsoleCursorPosition(out,point);
@@ -228,7 +226,7 @@ int flush(){
         request[HIGHT+1]=0;
         flag=1;
         point.Y=TY+1+SCORE;
-        point.X=(TX+WIDE+3)*2;
+        point.X=(TX+WIDTH+3)*2;
         SetConsoleCursorPosition(out,point);
         printf("%d",score);
         point.X=TX*2;
@@ -239,7 +237,7 @@ int flush(){
         request[HIGHT+2]=0;
         flag=1;
         point.Y=TY+1+ROUND;
-        point.X=(TX+WIDE+3)*2;
+        point.X=(TX+WIDTH+3)*2;
         SetConsoleCursorPosition(out,point);
         printf("%d",rnd);
         point.X=TX*2;
@@ -264,18 +262,18 @@ int init(){
     system("cls");
     up(i,1,TY-1)printf("\n");
     up(i,1,TX-1)printf("  ");
-    up(i,-1,WIDE)printf("□");
+    up(i,-1,WIDTH)printf("□");
     printf("  next: \n");
     up(i,1,HIGHT){
         up(i,1,TX-1)printf("  ");
         printf("□");
-        up(j,1,WIDE)printf("  ");
+        up(j,1,WIDTH)printf("  ");
         printf("□");
         if(i==SCORE+1)printf("  score:");else if(i==ROUND+1)printf("  round:");
         printf("\n");
     }
     printf("  ");
-    up(i,-1,WIDE)printf("□");
+    up(i,-1,WIDTH)printf("□");
     printf("\n\n    Press 'w' to roll\n    Press 'a' or 'd' to move\n    Press 's' to drop faster\n\n    Press '=' to exit");
     out=GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(out,7);
