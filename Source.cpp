@@ -99,7 +99,7 @@ int next(){
     if(input){
         switch(input){
             case 's':
-                if(tick%((DROP_T/TIME-1)/RATE)==0&&tick!=(DROP_T/TIME-1)){down=1;clear();++py;}else input=0;
+                if((tick*RATE)%(DROP_T/TIME)==0&&tick!=0&&tick!=(DROP_T/TIME-1)){down=1;clear();++py;}else input=0;
                 break;
             case 'w':
                 clear();
@@ -191,9 +191,8 @@ int main(){
     return 0;
 }
 int flush(){
-    static int color=7;int flag=0;
+    static int color=7;
     up(k,0,HIGHT-1)if(request[k]){
-        flag=1;
         request[k]=0;
         point.Y=k+TY;
         SetConsoleCursorPosition(out,point);
@@ -211,7 +210,6 @@ int flush(){
         if(color!=(blockNext+1))
             SetConsoleTextAttribute(out,color=(blockNext+1));
         request[HIGHT]=0;
-        flag=1;
         point.X=(TX+WIDTH+2)*2;
         up(i,0,3){
             point.Y=TY+1+i;
@@ -224,7 +222,6 @@ int flush(){
         if(7!=color)
             SetConsoleTextAttribute(out,color=7);
         request[HIGHT+1]=0;
-        flag=1;
         point.Y=TY+1+SCORE;
         point.X=(TX+WIDTH+3)*2;
         SetConsoleCursorPosition(out,point);
@@ -235,20 +232,18 @@ int flush(){
         if(7!=color)
             SetConsoleTextAttribute(out,color=7);
         request[HIGHT+2]=0;
-        flag=1;
         point.Y=TY+1+ROUND;
         point.X=(TX+WIDTH+3)*2;
         SetConsoleCursorPosition(out,point);
         printf("%d",rnd);
         point.X=TX*2;
     }
-    if(flag){
-        point.Y=9+TY+HIGHT;
-        SetConsoleCursorPosition(out,point);
-    }
     return 0;
 }
 int init(){
+    out=GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO cursorInfo={1,0};
+    SetConsoleCursorInfo(out,&cursorInfo);
     srand(time(0));
     randomN=rand();
     blockNow=randomN%7;
@@ -275,7 +270,6 @@ int init(){
     printf("  ");
     up(i,-1,WIDTH)printf("□");
     printf("\n\n    Press 'w' to roll\n    Press 'a' or 'd' to move\n    Press 's' to drop faster\n\n    Press '=' to exit");
-    out=GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(out,7);
     return 0;
 }
