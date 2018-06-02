@@ -2,4 +2,4 @@
 homework
 
 -----------
-developed at: gcc/windows10-32bit.
+developed at: gcc 6.3.0 / windows10-64bit.
