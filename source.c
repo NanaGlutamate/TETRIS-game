@@ -7,20 +7,21 @@
 #include<conio.h>
 #define up(i,a,b) for(int i=a;i<=b;i++)
 #define down(i,a,b) for(int i=a;i>=b;i--)
-#define WIDTH 15
-#define HIGHT 24
-#define TIME 20
-#define DROP_T 800
-#define TX 2
-#define TY 2
-#define SCORE 7
-#define ROUND 10
-#define RATE 8
-#define CPMS CLOCKS_PER_SEC/1000
+#define WIDTH (15)
+#define HIGHT (24)
+#define TIME (20)
+#define DROP_T (800)
+#define TX (2)
+#define TY (2)
+#define SCORE (7)
+#define ROUND (10)
+#define RATE (8)
+#define CPMS (CLOCKS_PER_SEC/1000)
+#define SAVE "record.dat"
 
 int score=0,rnd=1,randomN=1,lose=0;
 int blockNow=0,blockNext=0,shape=0;
-int px=WIDTH/2-2,py=0;
+int px=WIDTH/2-1,py=0;
 int tick=0;
 static const int COLOR[]={14,13,15,12,2,1,8};
 HANDLE out;
@@ -35,6 +36,44 @@ int clear();
 int prt(int);
 int collision();
 
+typedef struct{
+    char*name;
+    int score;
+}PLAYER;PLAYER player[11];
+int cmp(const void*a,const void*b){return ((PLAYER*)a)->score-((PLAYER*)b)->score;}
+int record(int pScore){
+    FILE *file=fopen(SAVE,"r");char str[10][40],name[21];int i;char*tmp;
+    if(file==NULL){
+        file=fopen(SAVE,"w");
+        fprintf(file,"0:??\n0:??\n0:??\n5:?\n10:x\n50:xx\n100:xxx\n200:xxxx\n400:xxxxx\n600:xxxxxx\n");
+        fclose(file);
+        file=fopen(SAVE,"r");
+    }
+    for(int i=0;i<10;i++){
+        fgets(str[i],40,file);
+        if((tmp=strchr(str[i],'\n'))!=NULL)*tmp='\0';
+    }
+    if(sscanf(str[0],"%d",&(player[0].score))!=1)return 1;
+    if(player[0].score>=pScore){
+        printf("\n\n  You have not break records.\n");
+        return 0;
+    }
+    if((player[0].name=strchr(str[0],':')+1)==(NULL+1))return 1;
+    for(i=1;i<10;i++){
+        if(sscanf(str[i],"%d",&(player[i].score))!=1)return 1;
+        if((player[i].name=strchr(str[i],':')+1)==(NULL+1))return 1;
+    }
+    printf("\n\n  New Records! entry your name(in 20 charaters,no space):\n");
+    scanf("%20s",name);
+    player[10].score=pScore;player[10].name=name;
+    qsort(player,11,sizeof(PLAYER),cmp);
+    fclose(file);file=fopen(SAVE,"w");
+    printf("\n\n");
+    for(i=1;i<11;i++)fprintf(file,"%d:%s\n",player[i].score,player[i].name);
+    for(i=10;i>0;i--)fprintf(stdout,"    No.%2d:%21s, score:%5d\n",11-i,player[i].name,player[i].score);
+    fclose(file);
+    return 0;
+}
 int sleep(int t){
     static int clk=-1;int tempClk=0;
     if(clk==-1)clk=clock();
@@ -151,7 +190,7 @@ int next(){
                 clean();
                 srand(randomN*time(0));
                 randomN=rand();
-                blockNow=blockNext;blockNext=randomN%7;shape=0;px=WIDTH/2-2,py=0;
+                blockNow=blockNext;blockNext=randomN%7;shape=0;px=WIDTH/2-1,py=0;
                 loadBlock(blocks[blockNow][0]);
                 if(collision()){
                     lose=1;
@@ -167,27 +206,6 @@ int next(){
         }
         prt(1);
     }
-    return 0;
-}
-int main(){
-    system("cls");
-    printf("\n\n\n      Press space to start");
-    while(getch()!=' ');
-    sleep(TIME);
-    system("cls");
-    init();
-    while(!kbhit()||((input=getch())!='=')){
-        next();
-        flush();
-        if(lose)break;
-        input=0;
-        if((++tick)>=(DROP_T/TIME))tick=0;
-        sleep(TIME);
-    }
-    point.X=0;point.Y=TY+HIGHT+2;
-    SetConsoleCursorPosition(out,point);
-    printf("      Your final score is:\n      %12d              \n                                   \n          in                      \n      %12d                  \n                            \n          rounds.                       \n",score,rnd);
-    system("pause");
     return 0;
 }
 int flush(){
@@ -271,5 +289,29 @@ int init(){
     up(i,-1,WIDTH)printf("□");
     printf("\n\n    Press 'w' to roll\n    Press 'a' or 'd' to move\n    Press 's' to drop faster\n\n    Press '=' to exit");
     SetConsoleTextAttribute(out,7);
+    return 0;
+}
+int main(){
+    system("cls");
+    printf("\n\n\n      Press space to start");
+    while(getch()!=' ');
+    sleep(TIME);
+    system("cls");
+    init();
+    while(!kbhit()||((input=getch())!='=')){
+        next();
+        flush();
+        if(lose)break;
+        input=0;
+        if((++tick)>=(DROP_T/TIME))tick=0;
+        sleep(TIME);
+    }
+    point.X=0;point.Y=TY+HIGHT+2;
+    SetConsoleTextAttribute(out,15);
+    SetConsoleCursorPosition(out,point);
+    system("cls");
+    printf("\n\n\n\n  GameOver,your score is %d in %d rounds.",score,rnd);
+    if(record(score)==1)printf("\n  record error.\n");
+    system("pause");
     return 0;
 }
